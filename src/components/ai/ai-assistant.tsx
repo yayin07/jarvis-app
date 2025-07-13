@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,22 +9,28 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useAIAssistant } from "@/hooks/use-ai-assistance";
+import type { Message } from "ai";
 
 export function AIAssistant() {
   const { processNaturalLanguage, isProcessing } = useAIAssistant();
+
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
-      api: "/api/ai/chat",
-      onFinish: async (message) => {
-        // Process the AI response for task operations
-        await processNaturalLanguage(message.content);
+      // ✅ FIX: Use the /api/process endpoint instead of /api/chat
+      api: "/api/process",
+
+      // ✅ After AI replies, process its operations
+      onFinish: async (message: Message) => {
+        if (message.content) {
+          await processNaturalLanguage(message.content);
+        }
       },
     });
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading || isProcessing) return;
-    handleSubmit(e);
+    await handleSubmit(e);
   };
 
   return (
