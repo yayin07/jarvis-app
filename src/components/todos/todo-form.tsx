@@ -89,7 +89,7 @@ export function TodoForm() {
             value={priority}
             onValueChange={(value: any) => setPriority(value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

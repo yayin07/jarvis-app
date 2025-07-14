@@ -142,7 +142,7 @@ export function TodoItem({ todo }: TodoItemProps) {
                   </div>
 
                   <div className="space-y-1 w-full">
-                    <div className="font-semibold">Priority </div>
+                    <div className="font-semibold ">Priority </div>
                     <Select
                       value={editPriority}
                       onValueChange={(value: "LOW" | "MEDIUM" | "HIGH") =>
