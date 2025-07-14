@@ -5,26 +5,12 @@ An overengineered, full-stack todo list application that seamlessly integrates t
 ## 🚀 Features
 
 ### Traditional Todo Management
-- ✅ User authentication (register/login)
-- ✅ Create, read, update, delete tasks
-- ✅ Task prioritization (Low, Medium, High)
-- ✅ Due dates and categories
-- ✅ Task completion tracking
-- ✅ Responsive design with modern UI
-
-### AI-Powered Assistant
-- 🤖 Natural language task management
-- 🧠 Conversational interface for task operations
-- 📝 Smart task parsing and creation
-- 🔍 Context-aware task operations
-- ⚡ Real-time AI processing
-
-### Advanced Architecture
-- 🏗️ Clean separation of UI and server state
-- 🔄 Optimistic updates with error handling
-- 📊 Advanced caching strategies
-- 🎯 Type-safe API design
-- 🛡️ Comprehensive error boundaries
+-  User authentication (register/login)
+-  Create, read, update, delete tasks
+-  Task prioritization (Low, Medium, High)
+-  Due dates and categories
+-  Task completion tracking
+-  Responsive design with modern UI
 
 ## 🛠️ Technology Stack
 
@@ -73,7 +59,7 @@ An overengineered, full-stack todo list application that seamlessly integrates t
 
 ---
 
-## 🧠 State Management Architecture
+## State Management Architecture
 
 ### ✅ UI State (Zustand)
 - Auth state (user, loading, error)
@@ -92,7 +78,6 @@ An overengineered, full-stack todo list application that seamlessly integrates t
 - Better caching
 - Predictable updates
 - Debuggable flows
-
 
 
 #### Prerequisites
