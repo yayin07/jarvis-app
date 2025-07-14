@@ -14,7 +14,7 @@ type Message = {
   content: string;
 };
 
-export function AIAssistant() {
+export function ChatAssistant() {
   const { processNaturalLanguage, isProcessing } = useAIAssistant();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");

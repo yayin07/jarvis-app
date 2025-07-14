@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useTodos } from "@/hooks/use-todos";
-import { AIAssistant } from "@/components/ai/ai-assistant";
+import { ChatAssistant } from "@/components/ai/chat-assistant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, CheckSquare, Plus } from "lucide-react";
@@ -80,7 +80,7 @@ export function TodoDashboard() {
                 <CardTitle>AI Assistant</CardTitle>
               </CardHeader>
               <CardContent>
-                <AIAssistant />
+                <ChatAssistant />
               </CardContent>
             </Card>
           </TabsContent>
