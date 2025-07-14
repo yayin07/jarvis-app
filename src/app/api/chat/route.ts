@@ -27,7 +27,11 @@ export async function POST(req: NextRequest) {
                 enum: ["LOW", "MEDIUM", "HIGH"],
               },
               category: { type: "string" },
-              dueDate: { type: "string", format: "date-time" },
+              dueDate: {
+                type: "string",
+                format: "date-time",
+                description: "Optional ISO 8601 date",
+              },
             },
             required: ["title"],
           },
@@ -81,9 +85,11 @@ export async function POST(req: NextRequest) {
         model: "openai/gpt-4o",
         messages: [
           {
-            role: "system",
-            content: `
+  role: "system",
+  content: `
 You are a smart assistant for a todo app.
+
+Today's date is: ${new Date().toISOString()} 
 
 Your job is to help users manage their tasks using structured tools.
 
@@ -92,18 +98,19 @@ Supported actions:
 - Update a todo (use updateTodo)
 - Delete a todo (use deleteTodo)
 
-Always call the appropriate tool instead of replying with plain text when a user clearly wants to create, update, or delete a task.
+⚠️ VERY IMPORTANT:
+- If the user mentions dates like "tomorrow", "next week", or "July 20", always convert it to a valid ISO 8601 datetime string in UTC format. Example: "2025-07-15T10:00:00Z"
+- If no due date is given, omit it or set it to null.
 
-Rules:
-- Only perform ONE action at a time (create, update, or delete).
-- If the user mixes actions or is unclear, ask them to clarify.
+Other Rules:
+- Only perform ONE action at a time.
 - Use only the title to identify a todo when updating or deleting.
-- If the task is not found, return an appropriate message via tool result.
-- If the user says “create 5 tasks”, respond with just 1 and explain why.
-- For casual chatting, respond conversationally without calling tools.
-- Never use markdown formatting in your replies.
-          `
-          },
+- Always default priority to "LOW" if not given.
+- Titles are case-insensitive.
+- Never use markdown in your reply.
+`.trim(),
+},
+
           {
             role: "user",
             content: prompt,
@@ -127,7 +134,7 @@ Rules:
             data: {
               title: args.title,
               description: args.description ?? "",
-              priority: args.priority ?? "MEDIUM",
+              priority: args.priority ?? "LOW", // ✅ default to LOW
               category: args.category ?? "",
               dueDate: args.dueDate ? new Date(args.dueDate) : null,
               completed: false,
