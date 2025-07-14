@@ -111,44 +111,65 @@ export function TodoItem({ todo }: TodoItemProps) {
 
           <div className="flex-1 min-w-0">
             {isEditing ? (
-              <div className="space-y-2 mb-2">
-                <Input
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  placeholder="Title"
-                />
-                <Input
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  placeholder="Description"
-                />
-                <Input
-                  value={editCategory}
-                  onChange={(e) => setEditCategory(e.target.value)}
-                  placeholder="Category"
-                />
-                <Select
-                  value={editPriority}
-                  onValueChange={(value: "LOW" | "MEDIUM" | "HIGH") =>
-                    setEditPriority(value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LOW">Low</SelectItem>
-                    <SelectItem value="MEDIUM">Medium</SelectItem>
-                    <SelectItem value="HIGH">High</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-3 mb-2">
+                <div className="space-y-1">
+                  <div className="font-semibold">Title</div>
+                  <Input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Title"
+                  />
+                </div>
 
-                <Input
-                  type="date"
-                  value={editDueDate}
-                  onChange={(e) => setEditDueDate(e.target.value)}
-                />
-                <div className="flex gap-2">
+                <div className="space-y-1">
+                  <div className="font-semibold">Description</div>
+                  <Input
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    placeholder="Description"
+                  />
+                </div>
+
+                <div className="flex flex-row gap-4">
+                  <div className="space-y-1 w-full">
+                    <div className="font-semibold">Category </div>
+                    <Input
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                      placeholder="Category"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-1 w-full">
+                    <div className="font-semibold">Priority </div>
+                    <Select
+                      value={editPriority}
+                      onValueChange={(value: "LOW" | "MEDIUM" | "HIGH") =>
+                        setEditPriority(value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOW">Low</SelectItem>
+                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                        <SelectItem value="HIGH">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1 w-full">
+                    <div className="font-semibold">Date </div>
+                    <Input
+                      type="date"
+                      value={editDueDate}
+                      onChange={(e) => setEditDueDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-3">
                   <Button size="sm" onClick={handleSaveEdit}>
                     <Check className="h-4 w-4" />
                   </Button>
@@ -177,26 +198,26 @@ export function TodoItem({ todo }: TodoItemProps) {
                     {todo.description}
                   </p>
                 )}
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={getPriorityColor(todo.priority)}>
+                    <Flag className="h-3 w-3 mr-1" />
+                    {todo.priority}
+                  </Badge>
+
+                  {todo.category && (
+                    <Badge variant="outline">{todo.category}</Badge>
+                  )}
+
+                  {todo.dueDate && (
+                    <Badge variant={isOverdue ? "destructive" : "secondary"}>
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {format(new Date(todo.dueDate), "MMM d, yyyy")}
+                    </Badge>
+                  )}
+                </div>
               </>
             )}
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={getPriorityColor(todo.priority)}>
-                <Flag className="h-3 w-3 mr-1" />
-                {todo.priority}
-              </Badge>
-
-              {todo.category && (
-                <Badge variant="outline">{todo.category}</Badge>
-              )}
-
-              {todo.dueDate && (
-                <Badge variant={isOverdue ? "destructive" : "secondary"}>
-                  <Calendar className="h-3 w-3 mr-1" />
-                  {format(new Date(todo.dueDate), "MMM d, yyyy")}
-                </Badge>
-              )}
-            </div>
           </div>
 
           <DropdownMenu>
