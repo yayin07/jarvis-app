@@ -1,5 +1,11 @@
 "use client";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import type { Todo } from "@/lib/types";
 import { useTodoMutations } from "@/hooks/use-todo-mutations";
@@ -32,31 +38,46 @@ interface TodoItemProps {
 export function TodoItem({ todo }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
+  const [editDescription, setEditDescription] = useState(
+    todo.description ?? ""
+  );
+  const [editCategory, setEditCategory] = useState(todo.category ?? "");
+  const [editPriority, setEditPriority] = useState(todo.priority ?? "LOW");
+  const [editDueDate, setEditDueDate] = useState(
+    todo.dueDate ? new Date(todo.dueDate).toISOString().split("T")[0] : ""
+  );
+
   const { updateTodo, deleteTodo, toggleTodo } = useTodoMutations();
 
   const handleSaveEdit = () => {
-    if (editTitle.trim() && editTitle !== todo.title) {
-      updateTodo.mutate({
-        id: todo.id,
-        data: { title: editTitle.trim() },
-      });
-    }
+    updateTodo.mutate({
+      id: todo.id,
+      data: {
+        title: editTitle.trim(),
+        description: editDescription.trim(),
+        category: editCategory.trim(),
+        priority: editPriority,
+        dueDate: todo.dueDate
+          ? new Date(todo.dueDate).toISOString()
+          : undefined,
+      },
+    });
     setIsEditing(false);
-    setEditTitle(todo.title);
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditTitle(todo.title);
+    setEditDescription(todo.description ?? "");
+    setEditCategory(todo.category ?? "");
+    setEditPriority(todo.priority ?? "LOW");
+    setEditDueDate(
+      todo.dueDate ? new Date(todo.dueDate).toISOString().split("T")[0] : ""
+    );
   };
 
-  const handleToggle = () => {
-    toggleTodo.mutate(todo.id);
-  };
-
-  const handleDelete = () => {
-    deleteTodo.mutate(todo.id);
-  };
+  const handleToggle = () => toggleTodo.mutate(todo.id);
+  const handleDelete = () => deleteTodo.mutate(todo.id);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -77,8 +98,8 @@ export function TodoItem({ todo }: TodoItemProps) {
   return (
     <Card
       className={`transition-all duration-200 ${
-        todo.completed ? "opacity-60 bg-slate-50" : "hover:shadow-md"
-      } ${isOverdue ? "border-red-200 bg-red-50" : ""}`}
+        todo.completed ? "opacity-60 bg-emerald-50" : "hover:shadow-md"
+      } ${isOverdue ? "border-rose-200 bg-rose-50" : ""}`}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
@@ -90,38 +111,73 @@ export function TodoItem({ todo }: TodoItemProps) {
 
           <div className="flex-1 min-w-0">
             {isEditing ? (
-              <div className="flex items-center gap-2 mb-2">
+              <div className="space-y-2 mb-2">
                 <Input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSaveEdit();
-                    if (e.key === "Escape") handleCancelEdit();
-                  }}
-                  className="flex-1"
-                  autoFocus
+                  placeholder="Title"
                 />
-                <Button size="sm" onClick={handleSaveEdit}>
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                  <X className="h-4 w-4" />
-                </Button>
+                <Input
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Description"
+                />
+                <Input
+                  value={editCategory}
+                  onChange={(e) => setEditCategory(e.target.value)}
+                  placeholder="Category"
+                />
+                <Select
+                  value={editPriority}
+                  onValueChange={(value: "LOW" | "MEDIUM" | "HIGH") =>
+                    setEditPriority(value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LOW">Low</SelectItem>
+                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                    <SelectItem value="HIGH">High</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Input
+                  type="date"
+                  value={editDueDate}
+                  onChange={(e) => setEditDueDate(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleSaveEdit}>
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ) : (
-              <h4
-                className={`font-medium mb-2 ${
-                  todo.completed
-                    ? "line-through text-slate-500"
-                    : "text-slate-900"
-                }`}
-              >
-                {todo.title}
-              </h4>
-            )}
-
-            {todo.description && (
-              <p className="text-sm text-slate-600 mb-2">{todo.description}</p>
+              <>
+                <h4
+                  className={`font-medium mb-2 ${
+                    todo.completed
+                      ? "line-through text-slate-500"
+                      : "text-slate-900"
+                  }`}
+                >
+                  {todo.title}
+                </h4>
+                {todo.description && (
+                  <p className="text-sm text-slate-600 mb-2">
+                    {todo.description}
+                  </p>
+                )}
+              </>
             )}
 
             <div className="flex items-center gap-2 flex-wrap">
