@@ -1,63 +1,79 @@
 "use client";
 
-import React from "react";
-import { useChat } from "@ai-sdk/react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useAIAssistant } from "@/hooks/use-ai-assistance";
-import type { Message } from "ai";
+
+type Message = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+};
 
 export function AIAssistant() {
   const { processNaturalLanguage, isProcessing } = useAIAssistant();
-
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      // ✅ FIX: Use the /api/process endpoint instead of /api/chat
-      api: "/api/process",
-
-      // ✅ After AI replies, process its operations
-      onFinish: async (message: Message) => {
-        if (message.content) {
-          await processNaturalLanguage(message.content);
-        }
-      },
-    });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || isProcessing) return;
-    await handleSubmit(e);
+    const trimmed = input.trim();
+    if (!trimmed || isLoading || isProcessing) return;
+
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: trimmed,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmed }),
+      });
+
+      const data = await res.json();
+
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: data.reply ?? "🤖 Here's what I found.",
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+
+      if (data?.rawAIResponse) {
+        await processNaturalLanguage(data.rawAIResponse);
+      }
+    } catch (error) {
+      console.error("❌ Error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "❌ Something went wrong.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="space-y-4">
-      <div className="text-sm text-slate-600 mb-4">
-        <p className="mb-2">Try saying things like:</p>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">
-            "Add a task to email my boss tomorrow"
-          </Badge>
-          <Badge variant="secondary">"Delete the task about laundry"</Badge>
-          <Badge variant="secondary">
-            "Update my grocery list to include bananas"
-          </Badge>
-          <Badge variant="secondary">"Show me all my urgent tasks"</Badge>
-        </div>
-      </div>
-
       <ScrollArea className="h-96 w-full border rounded-lg p-4">
         <div className="space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center text-slate-500 py-8">
-              <Bot className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-              <p>Start a conversation with your AI assistant!</p>
-            </div>
-          )}
-
           {messages.map((message) => (
             <Card
               key={message.id}
@@ -93,9 +109,7 @@ export function AIAssistant() {
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span className="text-sm text-slate-600">
-                      {isProcessing
-                        ? "Processing your request..."
-                        : "Thinking..."}
+                      {isProcessing ? "Processing your task..." : "Thinking..."}
                     </span>
                   </div>
                 </div>
@@ -108,8 +122,8 @@ export function AIAssistant() {
       <form onSubmit={handleFormSubmit} className="flex gap-2">
         <Input
           value={input}
-          onChange={handleInputChange}
-          placeholder="Tell me what you'd like to do with your tasks..."
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Tell me what you'd like to do..."
           disabled={isLoading || isProcessing}
           className="flex-1"
         />
