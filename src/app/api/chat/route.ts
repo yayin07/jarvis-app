@@ -83,7 +83,10 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "openai/gpt-4o",
-        messages: [
+        // model: "mistralai/mixtral-8x7b",
+        // model: "openai/GPT-3.5",
+        // models: ['anthropic/claude-3.5-sonnet', 'gryphe/mythomax-l2-13b'],
+        messages: [ 
           {
   role: "system",
   content: `
