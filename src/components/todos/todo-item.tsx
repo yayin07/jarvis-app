@@ -57,9 +57,7 @@ export function TodoItem({ todo }: TodoItemProps) {
         description: editDescription.trim(),
         category: editCategory.trim(),
         priority: editPriority,
-        dueDate: todo.dueDate
-          ? new Date(todo.dueDate).toISOString()
-          : undefined,
+        dueDate: editDueDate ? new Date(editDueDate).toISOString() : undefined,
       },
     });
     setIsEditing(false);
