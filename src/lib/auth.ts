@@ -27,15 +27,15 @@ export function comparePassword(password: string, hash: string): boolean {
 
 export function getAuthUser(request: NextRequest): JWTPayload | null {
   try {
-    const authHeader = request.headers.get("authorization")
-    const cookieToken = request.cookies.get("auth-token")?.value
+    const authHeader = request.headers.get("authorization");
+    const cookieToken = request.cookies.get("auth-token")?.value;
 
-    const token = authHeader?.replace("Bearer ", "") || cookieToken
+    const token = authHeader?.replace("Bearer ", "") || cookieToken;
 
-    if (!token) return null
+    if (!token) return null;
 
-    return verifyToken(token)
-  } catch (error) {
-    return null
+    return verifyToken(token);
+  } catch {
+    return null;
   }
 }

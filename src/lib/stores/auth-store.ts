@@ -1,12 +1,8 @@
 "use client"
+
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-
-interface User {
-  id: string
-  email: string
-  name: string
-}
+import type { User } from "@/lib/types" // <-- use shared User type
 
 interface AuthState {
   user: User | null
@@ -20,12 +16,12 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isLoading: false,
       error: null,
 
-      login: async (email: string, password: string) => {
+      login: async (email, password) => {
         set({ isLoading: true, error: null })
         try {
           const response = await fetch("/api/auth/login", {
@@ -35,21 +31,20 @@ export const useAuthStore = create<AuthState>()(
           })
 
           if (!response.ok) {
-            const error = await response.text()
-            throw new Error(error || "Login failed")
+            throw new Error(await response.text() || "Login failed")
           }
 
           const user = await response.json()
           set({ user, isLoading: false })
-        } catch (error) {
+        } catch (err) {
           set({
-            error: error instanceof Error ? error.message : "Login failed",
+            error: err instanceof Error ? err.message : "Login failed",
             isLoading: false,
           })
         }
       },
 
-      register: async (email: string, password: string, name: string) => {
+      register: async (email, password, name) => {
         set({ isLoading: true, error: null })
         try {
           const response = await fetch("/api/auth/register", {
@@ -59,15 +54,14 @@ export const useAuthStore = create<AuthState>()(
           })
 
           if (!response.ok) {
-            const error = await response.text()
-            throw new Error(error || "Registration failed")
+            throw new Error(await response.text() || "Registration failed")
           }
 
           const user = await response.json()
           set({ user, isLoading: false })
-        } catch (error) {
+        } catch (err) {
           set({
-            error: error instanceof Error ? error.message : "Registration failed",
+            error: err instanceof Error ? err.message : "Registration failed",
             isLoading: false,
           })
         }
@@ -75,20 +69,14 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ user: null })
-        // Clear persisted state
         localStorage.removeItem("auth-storage")
       },
 
       checkAuth: async () => {
-        const { user } = get()
-        if (!user) return
-
         try {
           const response = await fetch("/api/auth/me")
-          if (!response.ok) {
-            set({ user: null })
-          }
-        } catch (error) {
+          if (!response.ok) set({ user: null })
+        } catch {
           set({ user: null })
         }
       },
@@ -97,5 +85,5 @@ export const useAuthStore = create<AuthState>()(
       name: "auth-storage",
       partialize: (state) => ({ user: state.user }),
     },
-  ),
+  )
 )
